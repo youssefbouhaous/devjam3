@@ -1,0 +1,14 @@
+\babel@toc {english}{}\relax 
+\contentsline {chapter}{\numberline {1}The Problem Statement}{3}{chapter.1}%
+\contentsline {chapter}{\numberline {2}The Idea}{4}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Our Solution}{4}{section.2.1}%
+\contentsline {section}{\numberline {2.2}How It Solves the Problem}{4}{section.2.2}%
+\contentsline {chapter}{\numberline {3}Objectives}{5}{chapter.3}%
+\contentsline {chapter}{\numberline {4}Impact Analysis}{6}{chapter.4}%
+\contentsline {chapter}{\numberline {5}Business Model \& Sustainability}{7}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Revenue Streams:}{7}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Cost Structure:}{7}{section.5.2}%
+\contentsline {chapter}{\numberline {6}System Design \& Architecture}{9}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Mobile App (Android + AR)}{9}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Web Platform (Backend \& Frontend)}{9}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Cloud Infrastructure \& Deployment}{9}{section.6.3}%
