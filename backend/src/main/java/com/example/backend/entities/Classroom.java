@@ -1,11 +1,13 @@
 package com.example.backend.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class Classroom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,8 +15,8 @@ public class Classroom {
     private String name;
     private String description;
 
-    @OneToMany(mappedBy = "classroom")
-    private List<Student> students;
+    @ManyToMany
+    private List<Student> students=new ArrayList<>();
 
     @OneToMany(mappedBy = "classroom")
     private List<Teacher> teachers;

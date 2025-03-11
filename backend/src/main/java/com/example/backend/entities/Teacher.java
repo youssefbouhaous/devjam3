@@ -1,10 +1,14 @@
 package com.example.backend.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 @Entity
-@Data
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Teacher {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

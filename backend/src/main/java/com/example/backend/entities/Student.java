@@ -1,10 +1,17 @@
 package com.example.backend.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Data
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,8 +21,7 @@ public class Student {
     private String password;
     private String email;
 
-    @ManyToOne
-    @JoinColumn(name = "classroom_id")
-    private Classroom classroom;
+    @ManyToMany
+    private List<Classroom> classroom=new ArrayList<>();
 }
 
