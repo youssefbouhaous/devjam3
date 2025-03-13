@@ -86,7 +86,7 @@ public class AppMapper {
         arExperienceDTO.setExperienceID(arExperience.getExperienceID());
         arExperienceDTO.setName(arExperience.getName());
         arExperienceDTO.setDescription(arExperience.getDescription());
-        arExperienceDTO.setFile(arExperienceDTO.getFile());
+        arExperienceDTO.setFile(arExperience.getFile());
         return arExperienceDTO;
     }
 
