@@ -3,10 +3,11 @@ package com.example.backend.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Teacher {
@@ -18,8 +19,7 @@ public class Teacher {
     private String password;
     private String email;
 
-    @ManyToOne
-    @JoinColumn(name = "classroom_id")
-    private Classroom classroom;
+    @OneToMany(mappedBy = "teacher",  fetch = FetchType.LAZY)
+    private List<Classroom> classrooms;
 }
 
