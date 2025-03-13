@@ -14,19 +14,38 @@ import java.util.List;
 @AllArgsConstructor
 @Slf4j
 @RestController
+@RequestMapping("/students")
 public class StudentController {
     private AppService appService;
 
-    @PostMapping("/students")
+    @PostMapping()
     public StudentDTO saveTeacher(@RequestBody StudentDTO studentDTO) {
 
         return appService.saveStudent(studentDTO);
     }
 
-    @GetMapping("/students/{studentID}")
+    @GetMapping("/{studentID}")
     public StudentDTO getStudentById(@PathVariable Long studentID) {
         return appService.getStudentById(studentID);
     }
+
+    @PostMapping("/{studentID}/{classroomID}")
+        public ClassroomDTO updateStudent(@PathVariable Long studentID, @PathVariable Long classroomID) {
+        return appService.addStudentInClassroom(classroomID, studentID);
+
+    }
+
+    @PutMapping("/{studentID}")
+    public StudentDTO updateStudent(@PathVariable Long studentID, @RequestBody StudentDTO studentDTO) {
+        studentDTO.setStudentID(studentID);
+        return appService.updateStudent(studentDTO);
+
+
+    }
+
+
+
+
 
 
 

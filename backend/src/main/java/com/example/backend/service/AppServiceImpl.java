@@ -164,5 +164,70 @@ public class AppServiceImpl implements AppService {
 
     }
 
+    @Override
+    public List<StudentDTO> StudentAndClassroom(Long StudentID, Long ClassroomID) {
+        Student student = studentRepository.findById(StudentID).orElse(null);
+        if (student == null) {
+            throw new RuntimeException("Student not found with id: " + StudentID);
+        }
+        Classroom classroom = classroomRepository.findById(ClassroomID).orElse(null);
+        if (classroom == null) {
+            throw new RuntimeException("Classroom not found with id: " + ClassroomID);
+        }
+        student.getClassrooms().add(classroom);
+        classroom.getStudents().add(student);
+
+        studentRepository.save(student);
+
+
+        return appMapper.toStudentDTO(classroomRepository.save(classroom).getStudents());
+    }
+
+    @Override
+    public ClassroomDTO addStudentInClassroom(Long ClassroomID, Long StudentID) {
+        Student student = studentRepository.findById(StudentID).orElse(null);
+        if (student == null) {
+            throw new RuntimeException("Student not found with id: " + StudentID);
+        }
+        Classroom classroom = classroomRepository.findById(ClassroomID).orElse(null);
+        if (classroom == null) {
+            throw new RuntimeException("Classroom not found with id: " + ClassroomID);
+        }
+        student.getClassrooms().add(classroom);
+        classroom.getStudents().add(student);
+        studentRepository.save(student);
+        return appMapper.toClassroomDTO(classroomRepository.save(classroom));
+
+    }
+
+    @Override
+    public TeacherDTO updateTeacher(TeacherDTO teacherDTO) {
+        log.info("Updating teacher");
+        Teacher teacher = appMapper.toTeacher(teacherDTO);
+        return appMapper.toTeacherDTO(teacherRepository.save(teacher));
+    }
+
+    @Override
+    public StudentDTO updateStudent(StudentDTO studentDTO) {
+        log.info("Updating student");
+        Student student = appMapper.toStudent(studentDTO);
+        return appMapper.toStudentDTO(studentRepository.save(student));
+    }
+
+    @Override
+    public ARExperienceDTO updateARExperience(ARExperienceDTO arExperienceDTO) {
+        log.info("Updating ARExperience");
+        ARExperience  arExperience = appMapper.toARExperience(arExperienceDTO);
+        return appMapper.toARExperienceDTO(arExperienceRepository.save(arExperience));
+
+    }
+
+    @Override
+    public ClassroomDTO updateClassroom(ClassroomDTO classroomDTO) {
+        log.info("Updating Classroom");
+        Classroom classroom = appMapper.toClassroom(classroomDTO);
+        return appMapper.toClassroomDTO(classroomRepository.save(classroom));
+    }
+
 
 }

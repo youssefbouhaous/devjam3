@@ -30,7 +30,7 @@ public class TeacherController {
     }
 
     @PostMapping("/{teacherId}")
-    public ClassroomDTO createClassroom(@RequestBody ClassroomDTO classroomDTO, @PathVariable @RequestParam Long teacherId) {
+    public ClassroomDTO createClassroom(@RequestBody ClassroomDTO classroomDTO, @PathVariable Long teacherId) {
         return appService.addClassroom(classroomDTO, teacherId);
     }
 
@@ -45,45 +45,45 @@ public class TeacherController {
 
     }
 
+    @PutMapping("/{teacherId}")
+    public TeacherDTO updateTeacher(@RequestBody TeacherDTO teacherDTO, @PathVariable Long teacherId) {
+        teacherDTO.setTeacherID(teacherId);
+        return appService.updateTeacher(teacherDTO);
+    }
 
 
 
-    /*@PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Teacher t) {
-        String email = t.getEmail();
-        String password = t.getPassword();
+
+
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody TeacherDTO teacherDTO) {
+        String email = teacherDTO.getEmail();
+        String password = teacherDTO.getPassword();
         log.info("Attempting login with email: {}", email);
 
-        Teacher teacher = appService.getTeacherByEmail(email);
+        TeacherDTO teacherDTO2 = appService.getTeacherByEmail(email);
 
-        if (teacher == null) {
+        if (teacherDTO2 == null) {
             log.warn("No teacher found with email: {}", email);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
         }
 
-        log.info("Teacher found: {}", teacher.getEmail());
-        log.info("Stored password: {}", teacher.getPassword());
-        log.info("Provided password: {}", password);
 
-        if (!teacher.getPassword().equals(password)) {
+        if (!teacherDTO2.getPassword().equals(password)) {
             log.warn("Incorrect password for email: {}", email);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
         }
 
-        String token = generateToken(teacher);
-        return ResponseEntity.ok(Map.of("token", token, "user", teacher));
+        String token = generateToken(teacherDTO2);
+        return ResponseEntity.ok(Map.of("token", token, "teacher", teacherDTO2));
     }
 
 
-    private String generateToken(Teacher teacher) {
+    private String generateToken(TeacherDTO teacherDTO) {
         // Implement token generation logic here
         return "dummy-token";
     }
 
-    @PutMapping("/teachers/{techerId}")
-    public Teacher updateTeacher(@RequestBody Teacher teacher, @PathVariable Long techerId) {
-        teacher.setTeacherID(techerId);
-        return appService.saveTeacher(teacher);
 
-    }*/
 }
