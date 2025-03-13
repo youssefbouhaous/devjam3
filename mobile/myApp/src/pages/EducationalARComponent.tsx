@@ -1,0 +1,709 @@
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+  IonButton,
+  IonIcon,
+  IonToast,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonCard,
+  IonCardHeader,
+  IonCardContent,
+  IonCardTitle,
+  IonSegment,
+  IonSegmentButton,
+  IonBadge,
+  IonGrid,
+  IonRow,
+  IonCol
+} from '@ionic/react';
+import { camera, cube, arrowBack, add, remove, refresh, informationCircle, shapes, school } from 'ionicons/icons';
+import './ARCamera.css';
+import * as THREE from 'three';
+
+// Define the shape information interface
+interface ShapeInfo {
+  id: number;
+  name: string;
+  type: string;
+  color: string;
+  description: string;
+  properties: { label: string; value: string }[];
+  createGeometry: () => THREE.BufferGeometry;
+}
+
+const EducationalARComponent: React.FC = () => {
+  // Refs for video and canvas elements
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  
+  // State variables
+  const [isARMode, setIsARMode] = useState(false);
+  const [isModelLoaded, setIsModelLoaded] = useState(false);
+  const [selectedShape, setSelectedShape] = useState<ShapeInfo | null>(null);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [showAxis, setShowAxis] = useState(true);
+  const [wireframe, setWireframe] = useState(false);
+  const [learningMode, setLearningMode] = useState('explore'); // 'explore', 'quiz'
+  
+  // Three.js references
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const modelRef = useRef<THREE.Mesh | null>(null);
+  const axesHelperRef = useRef<THREE.AxesHelper | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  
+  // Interaction states
+  const [isDragging, setIsDragging] = useState(false);
+  const [isRotating, setIsRotating] = useState(false);
+  const lastTouchRef = useRef({ x: 0, y: 0 });
+  const touchStartDistanceRef = useRef(0);
+  const modelScaleRef = useRef(1);
+  
+  // Shape definitions with educational info
+  const shapes: ShapeInfo[] = [
+    {
+      id: 1,
+      name: 'Cube',
+      type: 'Polyhedron',
+      color: '#4285F4', // Google blue
+      description: 'A cube is a 3D shape with 6 square faces, 12 edges, and 8 vertices. All faces are equal squares and all edges have the same length.',
+      properties: [
+        { label: 'Faces', value: '6 square faces' },
+        { label: 'Edges', value: '12 edges' },
+        { label: 'Vertices', value: '8 vertices' },
+        { label: 'Volume', value: 'a³ (a = side length)' },
+        { label: 'Surface Area', value: '6a²' }
+      ],
+      createGeometry: () => new THREE.BoxGeometry(2, 2, 2)
+    },
+    {
+      id: 2,
+      name: 'Sphere',
+      type: 'Round shape',
+      color: '#EA4335', // Google red
+      description: 'A sphere is a perfectly round 3D shape where all points on the surface are the same distance from the center.',
+      properties: [
+        { label: 'Faces', value: '1 curved surface' },
+        { label: 'Edges', value: '0 edges' },
+        { label: 'Vertices', value: '0 vertices' },
+        { label: 'Volume', value: '(4/3)πr³' },
+        { label: 'Surface Area', value: '4πr²' }
+      ],
+      createGeometry: () => new THREE.SphereGeometry(1.5, 32, 32)
+    },
+    {
+      id: 3,
+      name: 'Cylinder',
+      type: 'Round prism',
+      color: '#FBBC05', // Google yellow
+      description: 'A cylinder has two circular faces connected by a curved rectangular face. It has a circle as its base.',
+      properties: [
+        { label: 'Faces', value: '3 faces (2 circular, 1 curved)' },
+        { label: 'Edges', value: '2 circular edges' },
+        { label: 'Vertices', value: '0 vertices' },
+        { label: 'Volume', value: 'πr²h' },
+        { label: 'Surface Area', value: '2πr² + 2πrh' }
+      ],
+      createGeometry: () => new THREE.CylinderGeometry(1, 1, 3, 32)
+    },
+    {
+      id: 4,
+      name: 'Cone',
+      type: 'Tapered shape',
+      color: '#34A853', // Google green
+      description: 'A cone has a circular base connected to a single point (apex) by a curved face.',
+      properties: [
+        { label: 'Faces', value: '2 faces (1 circular, 1 curved)' },
+        { label: 'Edges', value: '1 circular edge' },
+        { label: 'Vertices', value: '1 vertex (apex)' },
+        { label: 'Volume', value: '(1/3)πr²h' },
+        { label: 'Surface Area', value: 'πr² + πrl' }
+      ],
+      createGeometry: () => new THREE.ConeGeometry(1.5, 3, 32)
+    },
+    {
+      id: 5,
+      name: 'Torus',
+      type: 'Ring shape',
+      color: '#8E24AA', // Purple
+      description: 'A torus is a ring-shaped surface generated by a circle rotated about an axis. Think of a donut shape.',
+      properties: [
+        { label: 'Faces', value: '1 curved surface' },
+        { label: 'Edges', value: '0 edges' },
+        { label: 'Vertices', value: '0 vertices' },
+        { label: 'Volume', value: '2π²Rr²' },
+        { label: 'Surface Area', value: '4π²Rr' }
+      ],
+      createGeometry: () => new THREE.TorusGeometry(1.5, 0.5, 16, 50)
+    }
+  ];
+  
+  // Quiz questions about 3D shapes
+  const quizQuestions = [
+    {
+      question: "Which shape has exactly 12 edges?",
+      options: ["Sphere", "Cube", "Cylinder", "Cone"],
+      correctAnswer: "Cube"
+    },
+    {
+      question: "What's the volume formula for a sphere?",
+      options: ["4πr²", "(4/3)πr³", "πr²h", "(1/3)πr²h"],
+      correctAnswer: "(4/3)πr³"
+    },
+    {
+      question: "Which shape has no vertices?",
+      options: ["Cube", "Pyramid", "Sphere", "Cone"],
+      correctAnswer: "Sphere"
+    }
+  ];
+  
+  // Start camera
+  const startCamera = async () => {
+    try {
+      if (!videoRef.current) return;
+      
+      // Request camera with standard resolution to prevent zooming issues
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      });
+      
+      videoRef.current.srcObject = stream;
+      setCameraStream(stream);
+      
+      setToastMessage('Camera started');
+      setShowToast(true);
+      
+      // Initialize Three.js after camera starts
+      initThreeJS();
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      setToastMessage('Error accessing camera. Please check permissions.');
+      setShowToast(true);
+    }
+  };
+
+  // Stop camera and AR
+  const stopAR = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+    }
+    
+    // Stop animation loop
+    if (animationFrameRef.current !== null) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    
+    // Clean up Three.js
+    if (rendererRef.current) {
+      rendererRef.current.dispose();
+      rendererRef.current = null;
+    }
+    
+    setIsARMode(false);
+    setIsModelLoaded(false);
+    setLearningMode('explore');
+  };
+
+  // Initialize Three.js
+  const initThreeJS = () => {
+    if (!canvasRef.current) return;
+    
+    // Create scene
+    const scene = new THREE.Scene();
+    sceneRef.current = scene;
+    
+    // Create camera with a wider field of view
+    const camera = new THREE.PerspectiveCamera(
+      60,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    camera.position.z = 8;
+    cameraRef.current = camera;
+    
+    // Create renderer
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvasRef.current,
+      alpha: true,
+      antialias: true
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    rendererRef.current = renderer;
+    
+    // Add lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+    
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(1, 1, 1);
+    scene.add(directionalLight);
+    
+    // Add axes helper
+    const axesHelper = new THREE.AxesHelper(5);
+    scene.add(axesHelper);
+    axesHelperRef.current = axesHelper;
+    
+    // Create the selected 3D shape
+    createShape();
+    
+    // Start animation loop
+    animate();
+    
+    // Handle window resize
+    const handleResize = () => {
+      if (!cameraRef.current || !rendererRef.current) return;
+      
+      cameraRef.current.aspect = window.innerWidth / window.innerHeight;
+      cameraRef.current.updateProjectionMatrix();
+      rendererRef.current.setSize(window.innerWidth, window.innerHeight);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    // Handle touch events for interaction
+    if (canvasRef.current) {
+      canvasRef.current.addEventListener('touchstart', handleTouchStart);
+      canvasRef.current.addEventListener('touchmove', handleTouchMove);
+      canvasRef.current.addEventListener('touchend', handleTouchEnd);
+    }
+    
+    // Set cleanup function
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      
+      if (canvasRef.current) {
+        canvasRef.current.removeEventListener('touchstart', handleTouchStart);
+        canvasRef.current.removeEventListener('touchmove', handleTouchMove);
+        canvasRef.current.removeEventListener('touchend', handleTouchEnd);
+      }
+      
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      
+      if (sceneRef.current && modelRef.current) {
+        sceneRef.current.remove(modelRef.current);
+      }
+      
+      if (rendererRef.current) {
+        rendererRef.current.dispose();
+      }
+    };
+  };
+
+  // Create 3D shape
+  const createShape = () => {
+    if (!sceneRef.current || !selectedShape) return;
+    
+    // Remove existing model if any
+    if (modelRef.current) {
+      sceneRef.current.remove(modelRef.current);
+      modelRef.current = null;
+    }
+    
+    // Create geometry based on selected shape
+    const geometry = selectedShape.createGeometry();
+    
+    // Create material
+    const material = new THREE.MeshStandardMaterial({ 
+      color: selectedShape.color,
+      roughness: 0.3,
+      metalness: 0.2,
+      wireframe: wireframe
+    });
+    
+    // Create mesh
+    const mesh = new THREE.Mesh(geometry, material);
+    
+    // Position in front of camera
+    mesh.position.set(0, 0, -7);
+    
+    sceneRef.current.add(mesh);
+    modelRef.current = mesh;
+    setIsModelLoaded(true);
+    
+    // Show/hide axes helper based on state
+    if (axesHelperRef.current) {
+      axesHelperRef.current.visible = showAxis;
+    }
+    
+    setToastMessage(`${selectedShape.name} created`);
+    setShowToast(true);
+  };
+
+  // Animation loop
+  const animate = () => {
+    if (!isARMode) return;
+    
+    animationFrameRef.current = requestAnimationFrame(animate);
+    
+    // Optional: Add gentle auto-rotation for better visualization
+    if (modelRef.current && !isDragging && !isRotating) {
+      modelRef.current.rotation.y += 0.005;
+    }
+    
+    if (rendererRef.current && sceneRef.current && cameraRef.current) {
+      rendererRef.current.render(sceneRef.current, cameraRef.current);
+    }
+  };
+
+  // Touch interaction handlers
+  const handleTouchStart = (event: TouchEvent) => {
+    if (!modelRef.current) return;
+    
+    event.preventDefault();
+    
+    if (event.touches.length === 1) {
+      // Single touch - for rotation or movement
+      const touch = event.touches[0];
+      lastTouchRef.current = { x: touch.clientX, y: touch.clientY };
+      
+      // If touch is in top half, rotate, otherwise move
+      if (touch.clientY < window.innerHeight / 2) {
+        setIsRotating(true);
+        setIsDragging(false);
+      } else {
+        setIsRotating(false);
+        setIsDragging(true);
+      }
+    } 
+    else if (event.touches.length === 2) {
+      // Two touches - for scaling
+      setIsRotating(false);
+      setIsDragging(false);
+      
+      // Calculate distance between two touches
+      const dx = event.touches[0].clientX - event.touches[1].clientX;
+      const dy = event.touches[0].clientY - event.touches[1].clientY;
+      touchStartDistanceRef.current = Math.sqrt(dx * dx + dy * dy);
+    }
+  };
+
+  const handleTouchMove = (event: TouchEvent) => {
+    if (!modelRef.current) return;
+    
+    event.preventDefault();
+    
+    if (event.touches.length === 1 && (isDragging || isRotating)) {
+      // Handle single touch movement
+      const touch = event.touches[0];
+      const deltaX = touch.clientX - lastTouchRef.current.x;
+      const deltaY = touch.clientY - lastTouchRef.current.y;
+      
+      if (isRotating) {
+        // Rotate model
+        modelRef.current.rotation.y += deltaX * 0.01;
+        modelRef.current.rotation.x += deltaY * 0.01;
+      } 
+      else if (isDragging) {
+        // Move model
+        modelRef.current.position.x += deltaX * 0.01;
+        modelRef.current.position.y -= deltaY * 0.01;
+      }
+      
+      lastTouchRef.current = { x: touch.clientX, y: touch.clientY };
+    } 
+    else if (event.touches.length === 2) {
+      // Handle pinch to scale
+      const dx = event.touches[0].clientX - event.touches[1].clientX;
+      const dy = event.touches[0].clientY - event.touches[1].clientY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      const scale = distance / touchStartDistanceRef.current;
+      
+      if (scale !== 1) {
+        const newScale = modelScaleRef.current * scale;
+        modelRef.current.scale.set(newScale, newScale, newScale);
+        
+        // Update for next move
+        modelScaleRef.current = newScale;
+        touchStartDistanceRef.current = distance;
+      }
+    }
+  };
+
+  const handleTouchEnd = (event: TouchEvent) => {
+    if (event.touches.length === 0) {
+      setIsDragging(false);
+      setIsRotating(false);
+    }
+  };
+
+  // Manual controls for model manipulation
+  const scaleModel = (factor: number) => {
+    if (!modelRef.current) return;
+    
+    modelScaleRef.current *= factor;
+    modelRef.current.scale.multiplyScalar(factor);
+  };
+
+  const resetModel = () => {
+    if (!modelRef.current) return;
+    
+    // Reset position
+    modelRef.current.position.set(0, 0, -7);
+    
+    // Reset rotation
+    modelRef.current.rotation.set(0, 0, 0);
+    
+    // Reset scale
+    modelRef.current.scale.set(1, 1, 1);
+    modelScaleRef.current = 1;
+    
+    setToastMessage('Model position reset');
+    setShowToast(true);
+  };
+
+  // Toggle wireframe mode
+  const toggleWireframe = () => {
+    if (!modelRef.current) return;
+    
+    const newWireframe = !wireframe;
+    setWireframe(newWireframe);
+    
+    if (modelRef.current.material) {
+      (modelRef.current.material as THREE.MeshStandardMaterial).wireframe = newWireframe;
+    }
+  };
+
+  // Toggle axes helper
+  const toggleAxes = () => {
+    if (!axesHelperRef.current) return;
+    
+    const newShowAxis = !showAxis;
+    setShowAxis(newShowAxis);
+    axesHelperRef.current.visible = newShowAxis;
+  };
+
+  // Handle shape selection
+  const handleShapeSelect = (shape: ShapeInfo) => {
+    setSelectedShape(shape);
+  };
+
+  // Start AR experience
+  const startAR = async () => {
+    if (!selectedShape) {
+      setToastMessage('Please select a shape first');
+      setShowToast(true);
+      return;
+    }
+    
+    setIsARMode(true);
+    
+    // Start camera after state update
+    setTimeout(() => {
+      startCamera();
+    }, 100);
+  };
+
+  // Handle learning mode change
+  const changeLearningMode = (mode: string) => {
+    setLearningMode(mode);
+  };
+
+  // Update model when selected shape changes
+  useEffect(() => {
+    if (isARMode && sceneRef.current) {
+      createShape();
+    }
+  }, [selectedShape, wireframe, showAxis]);
+
+  return (
+    <IonPage>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>
+            {isARMode ? (
+              <>AR 3D Shapes <IonBadge color="light">{learningMode === 'explore' ? 'Explore' : 'Quiz'}</IonBadge></>
+            ) : '3D Shapes Learning'}
+          </IonTitle>
+        </IonToolbar>
+      </IonHeader>
+      
+      <IonContent fullscreen>
+        {isARMode ? (
+          <div className="ar-container">
+            <video 
+              ref={videoRef} 
+              className="camera-feed" 
+              autoPlay 
+              playsInline
+            />
+            <canvas 
+              ref={canvasRef} 
+              className="ar-overlay-canvas" 
+            />
+            
+            <div className="ar-top-controls">
+              <IonButton
+                onClick={stopAR}
+                shape="round"
+                color="light"
+              >
+                <IonIcon slot="icon-only" icon={arrowBack} />
+              </IonButton>
+              
+              {selectedShape && (
+                <div className="shape-title">
+                  <h3>{selectedShape.name}</h3>
+                </div>
+              )}
+              
+              <IonSegment 
+                value={learningMode} 
+                onIonChange={e => changeLearningMode(e.detail.value!)}
+                className="mode-segment"
+              >
+                <IonSegmentButton value="explore">
+                  <IonLabel>Explore</IonLabel>
+                </IonSegmentButton>
+                <IonSegmentButton value="quiz">
+                  <IonLabel>Quiz</IonLabel>
+                </IonSegmentButton>
+              </IonSegment>
+            </div>
+            
+            {/* Interaction instructions */}
+            {learningMode === 'explore' && isModelLoaded && (
+              <div className="touch-instructions">
+                <div className="touch-instruction-item">
+                  <div className="touch-zone top-zone"></div>
+                  <p>Touch top half to rotate</p>
+                </div>
+                <div className="touch-instruction-item">
+                  <div className="touch-zone bottom-zone"></div>
+                  <p>Touch bottom half to move</p>
+                </div>
+                <div className="touch-instruction-item">
+                  <div className="pinch-icon"></div>
+                  <p>Pinch to scale</p>
+                </div>
+              </div>
+            )}
+            
+            {/* Bottom controls */}
+            {learningMode === 'explore' && isModelLoaded && (
+              <div className="ar-model-controls">
+                <IonButton onClick={() => scaleModel(1.2)} color="light" shape="round">
+                  <IonIcon slot="icon-only" icon={add} />
+                </IonButton>
+                <IonButton onClick={() => scaleModel(0.8)} color="light" shape="round">
+                  <IonIcon slot="icon-only" icon={remove} />
+                </IonButton>
+                <IonButton onClick={resetModel} color="light" shape="round">
+                  <IonIcon slot="icon-only" icon={refresh} />
+                </IonButton>
+                <IonButton onClick={toggleWireframe} color="light" shape="round" fill={wireframe ? "solid" : "outline"}>
+                  Wireframe
+                </IonButton>
+                <IonButton onClick={toggleAxes} color="light" shape="round" fill={showAxis ? "solid" : "outline"}>
+                  Axes
+                </IonButton>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="shape-selection-container">
+            <IonCard>
+              <IonCardHeader>
+                <IonCardTitle>
+                  <IonIcon icon={school} color="primary"></IonIcon>
+                  &nbsp;Select a 3D Shape to Learn
+                </IonCardTitle>
+              </IonCardHeader>
+              <IonCardContent>
+                <p>Choose a 3D shape to explore and learn about its properties</p>
+                
+                <IonGrid>
+                  <IonRow>
+                    {shapes.map((shape) => (
+                      <IonCol size="6" size-md="4" key={shape.id}>
+                        <IonCard 
+                          button 
+                          onClick={() => handleShapeSelect(shape)}
+                          className={selectedShape?.id === shape.id ? 'selected-shape-card' : 'shape-card'}
+                          style={{ '--shape-color': shape.color } as any}
+                        >
+                          <div className="shape-icon-container">
+                            <IonIcon icon={shapes} color="light" className="shape-icon"></IonIcon>
+                          </div>
+                          <IonCardContent>
+                            <h3>{shape.name}</h3>
+                            <p className="shape-type">{shape.type}</p>
+                          </IonCardContent>
+                        </IonCard>
+                      </IonCol>
+                    ))}
+                  </IonRow>
+                </IonGrid>
+                
+                {selectedShape && (
+                  <div className="shape-details">
+                    <h2>About {selectedShape.name}</h2>
+                    <p>{selectedShape.description}</p>
+                    
+                    <h3>Properties</h3>
+                    <IonList lines="full">
+                      {selectedShape.properties.map((prop, index) => (
+                        <IonItem key={index}>
+                          <IonLabel>
+                            <b>{prop.label}:</b> {prop.value}
+                          </IonLabel>
+                        </IonItem>
+                      ))}
+                    </IonList>
+                  </div>
+                )}
+                
+                <IonButton 
+                  expand="block" 
+                  onClick={startAR}
+                  disabled={!selectedShape}
+                  className="start-ar-button"
+                >
+                  <IonIcon slot="start" icon={camera} />
+                  Start AR Learning Experience
+                </IonButton>
+                
+                <p className="note">
+                  Learn about 3D shapes in augmented reality.
+                  Select a shape to begin exploring.
+                </p>
+              </IonCardContent>
+            </IonCard>
+          </div>
+        )}
+        
+        <IonToast
+          isOpen={showToast}
+          onDidDismiss={() => setShowToast(false)}
+          message={toastMessage}
+          duration={2000}
+          position="bottom"
+        />
+      </IonContent>
+    </IonPage>
+  );
+};
+
+export default EducationalARComponent;

@@ -1,0 +1,210 @@
+.touch-instruction-item p {
+    margin: 0;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    text-align: center;
+  }
+  
+  .ar-model-controls {
+    position: absolute;
+    bottom: 30px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    z-index: 10;
+    flex-wrap: wrap;
+    padding: 0 10px;
+  }
+  
+  .shape-selection-container {
+    padding: 16px;
+  }
+  
+  .shape-card {
+    margin: 8px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .selected-shape-card {
+    margin: 8px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 0 3px var(--shape-color, var(--ion-color-primary));
+    transform: translateY(-5px);
+  }
+  
+  .shape-icon-container {
+    background-color: var(--shape-color, var(--ion-color-primary));
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .shape-icon {
+    font-size: 40px;
+  }
+  
+  .shape-type {
+    color: var(--ion-color-medium);
+    font-size: 12px;
+    margin-top: 0;
+  }
+  
+  .shape-details {
+    margin-top: 20px;
+    border-top: 1px solid var(--ion-color-light);
+    padding-top: 15px;
+  }
+  
+  .shape-details h2 {
+    color: var(--ion-color-primary);
+    font-size: 20px;
+    margin-top: 0;
+  }
+  
+  .shape-details h3 {
+    font-size: 16px;
+    margin-top: 15px;
+    color: var(--ion-color-dark);
+  }
+  
+  .start-ar-button {
+    margin-top: 20px;
+  }
+  
+  .note {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+    margin-top: 16px;
+    text-align: center;
+  }
+  
+  /* For better mobile experience */
+  @media (max-width: 576px) {
+    .ar-model-controls {
+      bottom: 20px;
+    }
+    
+    .touch-instructions {
+      bottom: 120px;
+    }
+  }.ar-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  .camera-feed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
+  
+  .ar-overlay-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    touch-action: none; /* Important for proper touch handling */
+  }
+  
+  .ar-top-controls {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 10;
+    padding: 0 20px;
+  }
+  
+  .shape-title {
+    display: flex;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    margin-top: 10px;
+  }
+  
+  .shape-title h3 {
+    margin: 0;
+    font-size: 18px;
+  }
+  
+  .mode-segment {
+    margin-top: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 20px;
+    --background: rgba(0, 0, 0, 0.7);
+    width: auto;
+  }
+  
+  .touch-instructions {
+    position: absolute;
+    bottom: 150px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    z-index: 10;
+  }
+  
+  .touch-instruction-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .touch-zone {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    margin-bottom: 5px;
+  }
+  
+  .top-zone {
+    background-color: rgba(76, 175, 80, 0.7);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z'/%3E%3C/svg%3E");
+    background-size: 30px;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
+  .bottom-zone {
+    background-color: rgba(33, 150, 243, 0.7);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z'/%3E%3C/svg%3E");
+    background-size: 30px;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
+  .pinch-icon {
+    width: 50px;
+    height: 50px;
+    background-color: rgba(233, 30, 99, 0.7);
+    border-radius: 8px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 19h10c.55 0 1 .45 1 1s-.45 1-1 1H7c-.55 0-1-.45-1-1s.45-1 1-1z'/%3E%3Cpath d='M15 15h2V5h-2v10z'/%3E%3Cpath d='M7 15h2V5H7v10z'/%3E%3Cpath d='M8 11h8v2H8z'/%3E%3C/svg%3E");
+    background-size: 30px;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-bottom: 5px;
+  }
