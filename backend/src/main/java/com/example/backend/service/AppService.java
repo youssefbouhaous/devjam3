@@ -31,4 +31,17 @@ public interface AppService {
 
     ARExperienceDTO addARExperience(ARExperienceDTO arExperienceDTO,  Long classroomId);
 
+    List<StudentDTO> StudentAndClassroom(Long StudentID, Long ClassroomID);
+    ClassroomDTO addStudentInClassroom(Long ClassroomID, Long StudentID);
+
+    TeacherDTO updateTeacher(TeacherDTO teacherDTO);
+
+    StudentDTO updateStudent(StudentDTO studentDTO);
+
+    ARExperienceDTO updateARExperience(ARExperienceDTO arExperienceDTO);
+
+    ClassroomDTO updateClassroom(ClassroomDTO classroomDTO);
+
+
+
 }

@@ -15,16 +15,18 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 @Slf4j
 @RestController
-@RequestMapping("/classrooms")
+@RequestMapping("teachers/{teacherID}/classrooms")
 public class ClassroomController {
     private AppService appService;
 
 
 
     @PostMapping("/{classroomId}")
-    public ARExperienceDTO createARExperience(@RequestBody ARExperienceDTO arExperienceDTO, @PathVariable Long classroomId) {
+    public ARExperienceDTO createARExperience(@PathVariable Long teacherID,@RequestBody ARExperienceDTO arExperienceDTO, @PathVariable Long classroomId) {
         return  appService.addARExperience(arExperienceDTO, classroomId);
     }
+
+
 
     /*@PostMapping("/classrooms")
     public Classroom addClassroom(@RequestParam String name,
