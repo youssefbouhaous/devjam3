@@ -42,7 +42,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         // Login prompt click
-        binding.tvLoginPrompt.setOnClickListener {
+        binding.tvLoginPromptNew.setOnClickListener {
             finish() // Return to login activity
         }
     }
