@@ -8,8 +8,7 @@ import java.util.List;
 
 @Entity
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Student {
@@ -22,6 +21,6 @@ public class Student {
     private String email;
 
     @ManyToMany
-    private List<Classroom> classroom=new ArrayList<>();
+    private List<Classroom> classrooms=new ArrayList<>();
 }
 
