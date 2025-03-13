@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @CrossOrigin(origins = "*")
 @AllArgsConstructor
 @Slf4j
@@ -22,8 +24,17 @@ public class ClassroomController {
 
 
     @PostMapping("/{classroomId}")
-    public ARExperienceDTO createARExperience(@PathVariable Long teacherID,@RequestBody ARExperienceDTO arExperienceDTO, @PathVariable Long classroomId) {
-        return  appService.addARExperience(arExperienceDTO, classroomId);
+    public ResponseEntity<?> createARExperience(@PathVariable Long teacherID,@RequestBody ARExperienceDTO arExperienceDTO, @PathVariable Long classroomId) {
+        ARExperienceDTO arExperienceDTO1 =  appService.addARExperience(arExperienceDTO, classroomId);
+
+        String token = generateToken(arExperienceDTO1);
+        return ResponseEntity.ok(Map.of("token", token, "arexperience", arExperienceDTO1));
+    }
+
+    String generateToken( ARExperienceDTO arExperienceDTO) {
+
+        return "ARExperience-token";
+
     }
 
 
