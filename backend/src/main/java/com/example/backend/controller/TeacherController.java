@@ -31,7 +31,9 @@ public class TeacherController {
 
     @PostMapping("/{teacherId}")
     public ClassroomDTO createClassroom(@RequestBody ClassroomDTO classroomDTO, @PathVariable Long teacherId) {
-        return appService.addClassroom(classroomDTO, teacherId);
+        log.debug("REST request to save Classroom : {}", classroomDTO);
+        ClassroomDTO classroomDTO1 = appService.addClassroom(classroomDTO, teacherId);
+       return classroomDTO1;
     }
 
     @GetMapping("/{teacherId}")
@@ -82,7 +84,11 @@ public class TeacherController {
 
     private String generateToken(TeacherDTO teacherDTO) {
         // Implement token generation logic here
-        return "dummy-token";
+        return "Teacher-token";
+    }
+
+    private String generateToken(ClassroomDTO classroomDTO) {
+        return "Classroom-token";
     }
 
 
