@@ -229,5 +229,19 @@ public class AppServiceImpl implements AppService {
         return appMapper.toClassroomDTO(classroomRepository.save(classroom));
     }
 
+    // In your AppServiceImpl class
+    @Override
+    public void updateARExperienceFile(Long arExperienceId, String fileName) {
+        ARExperience arExperience = arExperienceRepository.findById(arExperienceId)
+                .orElseThrow(() -> new RuntimeException("ARExperience not found"));
+        arExperience.setFile(fileName);
+        arExperienceRepository.save(arExperience);
+    }
+
+    @Override
+    public ARExperience getARExperienceById(Long arExperienceId) {
+        return arExperienceRepository.findById(arExperienceId)
+                .orElseThrow(() -> new RuntimeException("ARExperience not found"));
+    }
 
 }
