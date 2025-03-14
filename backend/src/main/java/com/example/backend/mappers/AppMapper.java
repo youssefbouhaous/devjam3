@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
 import java.util.List;
 
 @Service
@@ -82,8 +83,19 @@ public class AppMapper {
         return student;
     }
 
+
+    public ARExperienceDTO  toARExperienceDTO(ARExperience arExperience) {
+        ARExperienceDTO arExperienceDTO=new ARExperienceDTO();
+        arExperienceDTO.setExperienceID(arExperience.getExperienceID());
+        arExperienceDTO.setName(arExperience.getName());
+        arExperienceDTO.setDescription(arExperience.getDescription());
+        arExperienceDTO.setFile(arExperience.getFile());
+        return arExperienceDTO;
+    }
+
     public ARExperience toARExperience(ARExperienceDTO arExperienceDTO) {
-        ARExperience arExperience = new ARExperience();
+        ARExperience arExperience=new ARExperience();
+
         arExperience.setExperienceID(arExperienceDTO.getExperienceID());
         arExperience.setName(arExperienceDTO.getName());
         arExperience.setDescription(arExperienceDTO.getDescription());
@@ -101,6 +113,7 @@ public class AppMapper {
     }
 
         public List<ClassroomDTO>  toClassroomDTO(List<Classroom> classrooms) {
+
         List<ClassroomDTO> classroomDTOS=new ArrayList<>();
         for (Classroom classroom : classrooms) {
             ClassroomDTO classroomDTO=toClassroomDTO(classroom);

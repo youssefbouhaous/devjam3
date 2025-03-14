@@ -4,7 +4,9 @@ import com.example.backend.DTOS.ARExperienceDTO;
 import com.example.backend.DTOS.ClassroomDTO;
 import com.example.backend.DTOS.StudentDTO;
 import com.example.backend.DTOS.TeacherDTO;
+
 import com.example.backend.entities.ARExperience;
+
 import com.example.backend.entities.Classroom;
 import com.example.backend.entities.Student;
 import com.example.backend.entities.Teacher;
@@ -47,4 +49,5 @@ public interface AppService {
     // Add these methods to your AppService interface
     void updateARExperienceFile(Long arExperienceId, String fileName);
     ARExperience getARExperienceById(Long arExperienceId);
+
 }

@@ -60,6 +60,7 @@ public class TeacherController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody TeacherDTO teacherDTO) {
+
         String email = teacherDTO.getEmail();
         String password = teacherDTO.getPassword();
         log.info("Attempting login with email: {}", email);
@@ -68,7 +69,9 @@ public class TeacherController {
 
         if (teacherDTO2 == null) {
             log.warn("No teacher found with email: {}", email);
+
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+
         }
 
 

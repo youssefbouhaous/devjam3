@@ -24,7 +24,8 @@ public class ClassroomController {
 
 
     @PostMapping("/{classroomId}")
-    public ResponseEntity<?> createARExperience(@PathVariable Long teacherID,@RequestBody ARExperienceDTO arExperienceDTO, @PathVariable Long classroomId) {
+
+    public ResponseEntity<?> createARExperience2(@PathVariable Long teacherID,@RequestBody ARExperienceDTO arExperienceDTO, @PathVariable Long classroomId) {
         ARExperienceDTO arExperienceDTO1 =  appService.addARExperience(arExperienceDTO, classroomId);
 
         String token = generateToken(arExperienceDTO1);
@@ -37,6 +38,13 @@ public class ClassroomController {
 
     }
 
+
+    public ARExperienceDTO createARExperience(@PathVariable Long teacherID,@RequestBody ARExperienceDTO arExperienceDTO, @PathVariable Long classroomId) {
+        return appService.addARExperience(arExperienceDTO, classroomId);
+
+
+
+    }
 
 
     /*@PostMapping("/classrooms")
