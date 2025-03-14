@@ -59,7 +59,8 @@ public class TeacherController {
 
 
     @PostMapping("/login")
-    public TeacherDTO login(@RequestBody TeacherDTO teacherDTO) {
+    public ResponseEntity<?> login(@RequestBody TeacherDTO teacherDTO) {
+
         String email = teacherDTO.getEmail();
         String password = teacherDTO.getPassword();
         log.info("Attempting login with email: {}", email);
@@ -68,20 +69,30 @@ public class TeacherController {
 
         if (teacherDTO2 == null) {
             log.warn("No teacher found with email: {}", email);
-            throw new RuntimeException("No teacher found with email: " + email);
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+
         }
 
 
         if (!teacherDTO2.getPassword().equals(password)) {
             log.warn("Incorrect password for email: {}", email);
-            throw new RuntimeException("Incorrect password for email: " + email);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
         }
 
-        return teacherDTO2;
+        String token = generateToken(teacherDTO2);
+        return ResponseEntity.ok(Map.of("token", token, "teacher", teacherDTO2));
     }
 
 
+    private String generateToken(TeacherDTO teacherDTO) {
+        // Implement token generation logic here
+        return "Teacher-token";
+    }
 
+    private String generateToken(ClassroomDTO classroomDTO) {
+        return "Classroom-token";
+    }
 
 
 }

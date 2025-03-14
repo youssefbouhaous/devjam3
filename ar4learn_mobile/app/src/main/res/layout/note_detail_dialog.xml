@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/note_detail_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Note Title"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/note_detail_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="March 13, 2025"
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginBottom="16dp" />
+
+        <ImageView
+            android:id="@+id/note_detail_image"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            android:visibility="gone"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:id="@+id/note_detail_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Note content goes here..."
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:id="@+id/note_detail_model_ref"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Referenced model: Heart"
+            android:textSize="14sp"
+            android:textStyle="italic"
+            android:visibility="gone"
+            android:layout_marginBottom="16dp" />
+    </LinearLayout>
+</ScrollView>

@@ -2,7 +2,7 @@ package com.example.backend.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
+// Update your ARExperience entity
 @Entity
 @Data
 public class ARExperience {
@@ -11,7 +11,9 @@ public class ARExperience {
     private Long experienceID;
     private String name;
     private String description;
-    private String file;
+
+    // Updated file field
+    private String file; // Store file name instead of byte array
 
     @ManyToOne
     @JoinColumn(name = "classroom_id")
